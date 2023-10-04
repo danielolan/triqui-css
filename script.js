@@ -14,11 +14,34 @@ let gameBoard = [
     ['', '', ''],
     ['', '', '']
 ];
+
+
+document.getElementById('name1').value = localStorage.getItem('name1')
+document.getElementById('name2').value = localStorage.getItem('name2')
+
+
+
+if (localStorage.getItem('gameBoard')) {
+    gameBoard = JSON.parse(localStorage.getItem('gameBoard'));
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        const row = parseInt(cell.getAttribute('data-row'));
+        const col = parseInt(cell.getAttribute('data-col'));
+        cell.innerHTML = gameBoard[row][col];
+    });
+    assignCellEvents();
+}
+
+
 function startGame() {
+    assignCellEvents()
     // Verificar que ambos jugadores hayan ingresado sus nombres
     if (!document.getElementById('name1').value || !document.getElementById('name2').value) {
         alert('Ambos jugadores deben ingresar sus nombres para iniciar el juego.');
         return;
+    }else {
+        localStorage.setItem('name1',document.getElementById('name1').value )
+        localStorage.setItem('name2',document.getElementById('name2').value )   
     }
 
     // Inicializar el tablero y asignar eventos
@@ -42,6 +65,17 @@ function startGame() {
        currentPlayer = 'X';
        updateCurrentPlayerDisplay();
 }
+
+function assignCellEvents() {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        cell.addEventListener('keydown', handleCellKeydown);
+        cell.tabIndex = 0; // Hacer que la celda sea enfocable
+    });
+}
+
+
+
 function resetGame() {
     // Limpiar el tablero lógico
     gameBoard = [
@@ -49,7 +83,7 @@ function resetGame() {
         ['', '', ''],
         ['', '', '']
     ];
-
+    localStorage.removeItem('gameBoard'); 
     // Limpiar el tablero visual y remover eventos
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
@@ -72,6 +106,7 @@ function handleCellKeydown(event) {
         if (gameBoard[row][col] === '') {
             gameBoard[row][col] = currentPlayer;
             cell.innerHTML = currentPlayer;
+            localStorage.setItem('gameBoard', JSON.stringify(gameBoard));
             checkForWinner();
             toggleCurrentPlayer();
         }
